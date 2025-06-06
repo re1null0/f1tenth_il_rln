@@ -52,12 +52,14 @@ def bc(seed, agent, expert, env, start_pose, observation_shape, downsampling_met
 
     dataset = Dataset()
 
-    log = {'Number of Samples': [], 
-           'Number of Expert Queries': [], 
+    log = {'Number of Samples': [],
+           'Number of Expert Queries': [],
            'Mean Distance Travelled': [],
            'STDEV Distance Travelled': [],
            'Mean Reward': [],
            'STDEV Reward': []}
+
+    num_of_expert_queries = 0
 
     # Perform BC
     for iter in range(n_iter + 1):
@@ -145,6 +147,7 @@ def bc(seed, agent, expert, env, start_pose, observation_shape, downsampling_met
 
             speed, steer = expert.plan(obs['poses_x'][0], obs['poses_y'][0], obs['poses_theta'][0], tlad, vgain)
             action = np.array([[steer, speed]])
+            num_of_expert_queries += 1
 
             obs, step_reward, done, info = env.step(action)
 
@@ -178,7 +181,7 @@ def bc(seed, agent, expert, env, start_pose, observation_shape, downsampling_met
         dataset.add(traj)
 
         log['Number of Samples'].append(dataset.get_num_of_total_samples())
-        log['Number of Expert Queries'].append(dataset.get_num_of_total_samples())
+        log['Number of Expert Queries'].append(num_of_expert_queries)
 
 
         # Train the agent
