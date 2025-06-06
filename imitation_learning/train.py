@@ -5,6 +5,7 @@ import argparse
 import yaml
 
 from policies.agents.agent_mlp import AgentPolicyMLP
+from policies.agents.agent_rln import RLNPolicy
 from policies.experts.expert_waypoint_follower import ExpertWaypointFollower
 
 import utils.env_utils as env_utils
@@ -57,6 +58,12 @@ def initialization(il_config):
                                 2, \
                                 il_config['policy_type']['agent']['learning_rate'], \
                                 device)
+    elif il_config['policy_type']['agent']['model'] == 'rln':
+        agent = RLNPolicy(il_config['policy_type']['agent']['observation_shape'], \
+                          il_config['policy_type']['agent']['hidden_dim'], \
+                          2, \
+                          il_config['policy_type']['agent']['learning_rate'], \
+                          il_config['policy_type']['agent']['model_path'])
     else:
         #TODO: Implement other model (Transformer)
         pass
