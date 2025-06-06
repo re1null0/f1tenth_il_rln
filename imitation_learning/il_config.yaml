@@ -13,6 +13,7 @@ policy_type:
     observation_shape: 1080
     # TODO: downsample option for CNN and ViT
     model: mlp
+    model_path: path/to/model.tflite
     hidden_dim: 256
     learning_rate: 0.001
   # TODO: YAML config for Transformer 
