@@ -57,6 +57,13 @@ def initialization(il_config):
                                 2, \
                                 il_config['policy_type']['agent']['learning_rate'], \
                                 device)
+
+    elif il_config['policy_type']['agent']['model'] == 'rln':
+        agent = RLNPolicy(il_config['policy_type']['agent']['observation_shape'], \
+                          il_config['policy_type']['agent']['hidden_dim'], \
+                          2, \
+                          il_config['policy_type']['agent']['learning_rate'], \
+                          il_config['policy_type']['agent']['model_path'])
     else:
         #TODO: Implement other model (Transformer)
         pass
@@ -87,6 +94,7 @@ def train(seed, agent, expert, env, start_pose, observation_shape, downsampling_
         dagger(seed, agent, expert, env, start_pose, observation_shape, downsampling_method, render, render_mode)
     elif il_algo == 'hg-dagger':
         hg_dagger(seed, agent, expert, env, start_pose, observation_shape, downsampling_method, render, render_mode)
+    
     else:
         # TODO: Implement other IL algorithms (BC, HG DAgger, etc.)
         pass
