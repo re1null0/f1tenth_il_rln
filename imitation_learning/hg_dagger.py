@@ -109,6 +109,7 @@ def hg_dagger(seed, agent, expert, env, start_pose, observation_shape, downsampl
         if iter == 0:
             # Bootstrap using BC
             agent, log, dataset = bc(seed, agent, expert, env, start_pose, observation_shape, downsampling_method, render, render_mode, purpose='bootstrap')
+            num_of_expert_queries = log['Number of Expert Queries'][-1]
         else:
             # Reset environment
             done = False
@@ -155,6 +156,7 @@ def hg_dagger(seed, agent, expert, env, start_pose, observation_shape, downsampl
                     curr_action = np.array([[curr_expert_steer, curr_expert_speed]])
                     """
                     curr_action = expert_action
+                    num_of_expert_queries += 1
 
                     traj["observs"].append(observ)
                     traj["scans"].append(downsampled_scan)
@@ -190,7 +192,7 @@ def hg_dagger(seed, agent, expert, env, start_pose, observation_shape, downsampl
                 dataset.add(traj)
 
             log['Number of Samples'].append(dataset.get_num_of_total_samples())
-            log['Number of Expert Queries'].append(dataset.get_num_of_total_samples())
+            log['Number of Expert Queries'].append(num_of_expert_queries)
 
             print("Training agent...")
             for _ in range(n_batch_updates_per_iter):
