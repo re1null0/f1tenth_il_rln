@@ -135,19 +135,40 @@ def make_log(log, filename):
 
 
 def save_log_and_model(log, agent, algo_name):
-    path = "logs/{}".format(algo_name)
-    os.makedirs(os.path.dirname(path), exist_ok=True)
+    """Save a training log and the agent's model.
+
+    The log is written to ``logs/<algo_name>/<algo_name>_log.csv``.  If the
+    agent exposes a :func:`state_dict` method, the model parameters are stored
+    using :func:`torch.save` at
+    ``logs/<algo_name>/<algo_name>_model.pkl``.  When a TensorFlow model is
+    available (``agent.model`` or ``agent.interpreter``), it is saved with
+    ``agent.model.save`` and/or exported as ``<algo_name>.tflite`` in the same
+    directory.
+    """
+
+    path = Path("logs") / algo_name
+    path.mkdir(parents=True, exist_ok=True)
 
     # Save log
     df = pd.DataFrame(log)
-    log_path = Path(path + f'/{algo_name}_log.csv')
-    log_path.parent.mkdir(parents=True, exist_ok=True)  
+    log_path = path / f"{algo_name}_log.csv"
     df.to_csv(log_path, index=False)
 
     # Save model
-    model_path = Path(path + f'/{algo_name}_model.pkl')
-    model_path.parent.mkdir(parents=True, exist_ok=True) 
-    torch.save(agent.state_dict(), model_path)
+    model_base = path / f"{algo_name}_model"
+    if hasattr(agent, "state_dict"):
+        torch.save(agent.state_dict(), model_base.with_suffix(".pkl"))
+    elif hasattr(agent, "model") or hasattr(agent, "interpreter"):
+        tf_model = getattr(agent, "model", None)
+        if tf_model is not None and hasattr(tf_model, "save"):
+            tf_model.save(str(model_base))
+        interpreter = getattr(agent, "interpreter", None)
+        model_content = getattr(interpreter, "model_content", None)
+        if model_content is None:
+            model_content = getattr(interpreter, "_model_content", None)
+        if model_content is not None:
+            with open(model_base.with_suffix(".tflite"), "wb") as f:
+                f.write(model_content)
 
 
 def check_ittc(ego_distance, linear_vels_x, ittc_threshold = 0.5, scan_num = 1080):
