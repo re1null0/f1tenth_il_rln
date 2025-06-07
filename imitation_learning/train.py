@@ -5,8 +5,7 @@ import argparse
 import yaml
 
 from policies.agents.agent_mlp import AgentPolicyMLP
-from policies.agents.agent_rln import AgentPolicyRLN
-
+from policies.agents.agent_rln import RLNPolicy
 from policies.experts.expert_waypoint_follower import ExpertWaypointFollower
 
 import utils.env_utils as env_utils
